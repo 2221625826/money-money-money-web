@@ -1,21 +1,23 @@
 <template>
-  <div style="height: 100%">
-    <Book/>
+  <div>
+    <Money/>
   </div>
 </template>
 
 <script>
-import Book from "@/components/Book.vue";
+import Money from "@/components/Money.vue";
 // @ is an alias to /src
 export default {
   name: "BookView",
   components: {
-    Book,
+    Money,
   },
   data() {
     return {};
   },
-  methods: {},
+  methods: {
+    
+  },
 };
 </script>
 <style scoped>
