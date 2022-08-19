@@ -33,11 +33,11 @@ export default {
     login: function () {
       this.form.password = Base64.encode(this.form.password);
       this.$axios.get("/login/login", this.form).then((res) => {
-        if (res.code != 200 || res.result == null) {
+        if (res.code != 200 || res.data == null) {
           localStorage.removeItem("token");
           alert(res.msg);
         } else {
-          localStorage.setItem("token", res.result);
+          localStorage.setItem("token", res.data);
           this.$router.push("/home");
         }
       });

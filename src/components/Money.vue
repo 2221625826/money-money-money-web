@@ -1,11 +1,26 @@
 <template>
   <div class="root">
     <var-app-bar title="标题" />
-    <var-button class="date" @click="dateShow = true">
-      <h1>{{ this.date }}</h1>
-    </var-button>
-    <var-list :finished="finished" v-model:loading="loading" @load="load">
-      <var-cell :key="item" v-for="item in list.items"> 列表项: {{ item }} </var-cell>
+    <div class="button">
+      <var-button class="date" @click="dateShow = true" color="pink">
+        <b>
+          {{ this.date.substring(0, 4) }} 年 {{ this.date.substring(5) }} 月
+        </b>
+        <var-icon name="menu-down" :size="26" />
+      </var-button>
+      <var-button class="add" color="green">
+        <var-icon name="plus" :size="26" />
+      </var-button>
+    </div>
+
+    <var-list
+      :finished="this.list.finished"
+      v-model:loading="this.list.loading"
+      @load="load"
+    >
+      <var-cell :key="item" v-for="item in list.items">
+        {{ isReverse(item.reverse) }} ¥：{{ item.amount }}
+      </var-cell>
     </var-list>
 
     <var-popup position="bottom" v-model:show="dateShow">
@@ -26,9 +41,22 @@ export default {
     return {
       date: ref("2022-08"),
       list: ref({
+        year: 0,
+        month: 0,
         loading: false,
         finished: false,
-        items: [{ a: 0 }],
+        page: 1,
+        pageSize: 10,
+        items: [
+          {
+            id: null,
+            amount: 100,
+            reverse: true,
+            categoryId: 0,
+            remark: "",
+            payTime: "2022年08月16日",
+          },
+        ],
       }),
       sum: ref({
         in: 0,
@@ -40,14 +68,34 @@ export default {
   methods: {
     load: function () {
       setTimeout(() => {
-        for (let i = 0; i < 20; i++) {
-          this.list.items.push(this.list.items.length + 1);
-        }
-        this.loading = false;
-        if (this.list.items.length >= 60) {
-          this.finished.value = true;
-        }
+        this.list.year = Number(this.date.substring(0, 4));
+        this.list.month = Number(this.date.substring(5));
+        this.$axios.post("/money/list", this.list).then((res) => {
+          if (res.code != 200 || res.data == null) {
+            alert(res.msg);
+          } else {
+            this.list.items = this.list.items.concat(res.data.result);
+            this.list.loading = false;
+            if (res.data.pagination.page >= res.data.pagination.totalPage) {
+              this.list.finished = true;
+            } else {
+              this.list.page = this.list.page + 1;
+            }
+          }
+        });
       }, 1000);
+    },
+  },
+  computed: {
+    isReverse: function () {
+      return (reverse) => {
+        console.log(reverse);
+        if (reverse) {
+          return "支出";
+        } else {
+          return "收入";
+        }
+      };
     },
   },
 };
@@ -59,11 +107,25 @@ export default {
   height: 780px;
 }
 .date {
-  margin-top: 8%;
-  margin-left: 8%;
-  min-width: 30%;
-  min-height: 8%;
-  color: #000;
-  background-color: pink;
+  
+  display: inline-flex;
+}
+
+.date * {
+  font-size: 20px;
+  margin: auto;
+}
+
+.add {
+  min-width: 15%;
+  min-height: 25%;
+}
+
+.button {
+  display: flex;
+  width: 100%;
+  height: 13%;
+  align-items: center;
+  justify-content: space-around;
 }
 </style>
