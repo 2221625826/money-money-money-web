@@ -18,13 +18,22 @@
       v-model:loading="this.list.loading"
       @load="load"
     >
-      <var-cell :key="item" v-for="item in list.items">
-        {{ isReverse(item.reverse) }} ¥：{{ item.amount }}
+      <var-cell :key="item" v-for="(item) in list.items" :border="true" @click="showDetail(item)">
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.payTime }}</p>
+        <p>{{ isReverse(item.reverse) }} ¥：{{ item.amount }} 元</p>
       </var-cell>
     </var-list>
 
     <var-popup position="bottom" v-model:show="dateShow">
       <var-date-picker type="month" v-model="date" shadow />
+    </var-popup>
+    <var-popup position="bottom" v-model:show="itemDetail" >
+      <var-form ref="form" :readonly="readonly">
+        <var-input
+        v-model="form.title"
+      />
+      </var-form>
     </var-popup>
   </div>
 </template>
@@ -40,20 +49,21 @@ export default {
   data() {
     return {
       date: ref("2022-08"),
+      year: 0,
+      month: 0,
       list: ref({
-        year: 0,
-        month: 0,
         loading: false,
         finished: false,
         page: 1,
         pageSize: 10,
         items: [
           {
-            id: null,
+            id: 0,
+            title: "地铁票",
             amount: 100,
             reverse: true,
             categoryId: 0,
-            remark: "",
+            remark: "hahahahaha",
             payTime: "2022年08月16日",
           },
         ],
@@ -62,14 +72,20 @@ export default {
         in: 0,
         out: 0,
       }),
+      form: {},
       dateShow: ref(false),
+      itemDetail: ref(false),
+      readonly: true,
     };
   },
   methods: {
     load: function () {
+      this.list.loading = false;
+      this.list.finished = true;
+      return; //无后端开发
       setTimeout(() => {
-        this.list.year = Number(this.date.substring(0, 4));
-        this.list.month = Number(this.date.substring(5));
+        this.year = Number(this.date.substring(0, 4));
+        this.month = Number(this.date.substring(5));
         this.$axios.post("/money/list", this.list).then((res) => {
           if (res.code != 200 || res.data == null) {
             alert(res.msg);
@@ -85,11 +101,14 @@ export default {
         });
       }, 1000);
     },
+    showDetail: function(item) {
+      this.itemDetail = true;
+      this.form = item;
+    }
   },
   computed: {
     isReverse: function () {
       return (reverse) => {
-        console.log(reverse);
         if (reverse) {
           return "支出";
         } else {
@@ -107,7 +126,6 @@ export default {
   height: 780px;
 }
 .date {
-  
   display: inline-flex;
 }
 

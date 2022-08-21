@@ -7,8 +7,7 @@ module.exports = defineConfig({
     productionSourceMap: false, //生产环境不需要 source map,加速生产环境构建。默认true
 
     devServer: { //webpack-dev-server配置
-        host: 'localhost',
-        //public: '192.168.3.6:8080',
+        host:'0.0.0.0',
         port: 8080, //配置本项目运行端口
         proxy: { //配置代理服务器来解决跨域问题
             '/api': {
