@@ -2,10 +2,8 @@
   <div class="root">
     <var-app-bar title="标题" />
     <div class="button">
-      <var-button class="date" @click="dateShow = true" color="pink">
-        <b>
-          {{ this.date.substring(0, 4) }} 年 {{ this.date.substring(5) }} 月
-        </b>
+      <var-button class="date" @click="yearMonth = true" color="pink">
+        <b> {{ this.year }} 年 {{ this.month }} 月 </b>
         <var-icon name="menu-down" :size="26" />
       </var-button>
       <var-button class="add" color="green">
@@ -18,7 +16,12 @@
       v-model:loading="this.list.loading"
       @load="load"
     >
-      <var-cell :key="item" v-for="(item) in list.items" :border="true" @click="showDetail(item)">
+      <var-cell
+        :key="item"
+        v-for="item in list.items"
+        :border="true"
+        @click="showDetail(item)"
+      >
         <h2>{{ item.title }}</h2>
         <p>{{ item.payTime }}</p>
         <p>{{ isReverse(item.reverse) }} ¥：{{ item.amount }} 元</p>
@@ -26,14 +29,38 @@
     </var-list>
 
     <var-popup position="bottom" v-model:show="dateShow">
-      <var-date-picker type="month" v-model="date" shadow />
+      <var-date-picker v-model="form.payTime" shadow>
+        <template #year="{ year }">
+          <span>{{ year }}年</span>
+        </template>
+        <template #date="{month, date }">
+          <span>{{ month }}月{{ date }}日</span>
+        </template></var-date-picker
+      >
     </var-popup>
-    <var-popup position="bottom" v-model:show="itemDetail" >
+    <var-popup position="bottom" v-model:show="yearMonth">
+      <var-picker :columns="columns" @confirm="chooseMonth" />
+    </var-popup>
+    <var-popup position="bottom" v-model:show="itemDetail">
       <var-form ref="form" :readonly="readonly">
-        <var-input
-        v-model="form.title"
-      />
+        <var-input v-model="form.title" />
+        <var-input v-model="form.title" />
+        <var-input v-model="form.amount" />
+        <var-select v-model="form.reverse">
+          <var-option label="支出" :value="true" />
+          <var-option label="收入" :value="false" />
+        </var-select>
+        <var-select v-model="form.categoryId">
+          <var-option
+            v-for="(category, index) in categorys"
+            :label="category"
+            :key="index"
+            :value="index"
+          />
+        </var-select>
+        <var-input v-model="form.remark" />
       </var-form>
+      <var-input readonly v-model="form.payTime" @click="dateShow = true" />
     </var-popup>
   </div>
 </template>
@@ -48,7 +75,6 @@ export default {
   },
   data() {
     return {
-      date: ref("2022-08"),
       year: 0,
       month: 0,
       list: ref({
@@ -64,25 +90,31 @@ export default {
             reverse: true,
             categoryId: 0,
             remark: "hahahahaha",
-            payTime: "2022年08月16日",
+            payTime: "2022-08-16",
           },
         ],
       }),
+      categorys: ref([]),
       sum: ref({
         in: 0,
         out: 0,
       }),
       form: {},
       dateShow: ref(false),
+      yearMonth: ref(false),
       itemDetail: ref(false),
       readonly: true,
+      columns: ref([
+        Array.from({ length: 130 }).map((_, index) => index + 1970),
+        Array.from({ length: 12 }).map((_, index) => index + 1),
+      ]),
     };
   },
   methods: {
     load: function () {
       this.list.loading = false;
       this.list.finished = true;
-      return; //无后端开发
+      return;
       setTimeout(() => {
         this.year = Number(this.date.substring(0, 4));
         this.month = Number(this.date.substring(5));
@@ -101,10 +133,28 @@ export default {
         });
       }, 1000);
     },
-    showDetail: function(item) {
+    showDetail: function (item) {
       this.itemDetail = true;
       this.form = item;
-    }
+    },
+    getSum: function () {
+      this.$axios
+        .get("/money/sum", { year: this.year, month: this.month })
+        .then((res) => {
+          if (res.code != 200 || res.data == null) {
+            alert(res.msg);
+          } else {
+            this.sum = res.data;
+          }
+        });
+    },
+    chooseMonth: function (texts, indexes) {
+      console.log(this.year + "-" + this.month);
+      this.year = Number(texts[0]);
+      this.month = Number(texts[1]);
+      this.yearMonth = false;
+      console.log(this.year + "-" + this.month);
+    },
   },
   computed: {
     isReverse: function () {
