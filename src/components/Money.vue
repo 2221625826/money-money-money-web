@@ -42,8 +42,7 @@
       <var-picker :columns="columns" @confirm="chooseMonth" />
     </var-popup>
     <var-popup position="bottom" v-model:show="itemDetail">
-      <var-form ref="form" :readonly="readonly">
-        <var-input v-model="form.title" />
+      <var-form ref="form">
         <var-input v-model="form.title" />
         <var-input v-model="form.amount" />
         <var-select v-model="form.reverse">
@@ -94,7 +93,7 @@ export default {
           },
         ],
       }),
-      categorys: ref([]),
+      categorys: ref(["111","222"]),
       sum: ref({
         in: 0,
         out: 0,
@@ -103,7 +102,6 @@ export default {
       dateShow: ref(false),
       yearMonth: ref(false),
       itemDetail: ref(false),
-      readonly: true,
       columns: ref([
         Array.from({ length: 130 }).map((_, index) => index + 1970),
         Array.from({ length: 12 }).map((_, index) => index + 1),
