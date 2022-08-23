@@ -1,15 +1,23 @@
 <template>
   <div class="root">
-    <var-app-bar title="标题" />
-    <div class="button">
-      <var-button class="date" @click="yearMonth = true" color="pink">
-        <b> {{ this.year }} 年 {{ this.month }} 月 </b>
-        <var-icon name="menu-down" :size="26" />
+    <var-app-bar> 
+      <template #right>
+        <div style="width:40px">删除</div>
+      </template>
+    </var-app-bar>
+    <var-space justify="space-around" align="center" style="height: 13%">
+      <var-button @click="yearMonth = true" color="pink">
+        <var-space align="center" justify="space-around">
+          <b style="font-size: 20px">
+            {{ this.year }} 年 {{ this.month }} 月
+          </b>
+          <var-icon name="menu-down" :size="26" />
+        </var-space>
       </var-button>
-      <var-button class="add" color="green">
+      <var-button class="add" color="green" @click="showAdd">
         <var-icon name="plus" :size="26" />
       </var-button>
-    </div>
+    </var-space>
 
     <var-list
       :finished="this.list.finished"
@@ -33,7 +41,7 @@
         <template #year="{ year }">
           <span>{{ year }}年</span>
         </template>
-        <template #date="{month, date }">
+        <template #date="{ month, date }">
           <span>{{ month }}月{{ date }}日</span>
         </template></var-date-picker
       >
@@ -42,7 +50,15 @@
       <var-picker :columns="columns" @confirm="chooseMonth" />
     </var-popup>
     <var-popup position="bottom" v-model:show="itemDetail">
-      <var-form ref="form">
+      <var-app-bar color="blue" class="bar">
+        <template #left>
+          <div @click="itemDetail = false">取消</div>
+        </template>
+        <template #right>
+          <div @click="add">确认</div>
+        </template>
+      </var-app-bar>
+      <var-form ref="form" class="form">
         <var-input v-model="form.title" />
         <var-input v-model="form.amount" />
         <var-select v-model="form.reverse">
@@ -58,8 +74,8 @@
           />
         </var-select>
         <var-input v-model="form.remark" />
+        <var-input readonly v-model="form.payTime" @click="dateShow = true" />
       </var-form>
-      <var-input readonly v-model="form.payTime" @click="dateShow = true" />
     </var-popup>
   </div>
 </template>
@@ -74,31 +90,22 @@ export default {
   },
   data() {
     return {
-      year: 0,
-      month: 0,
+      year: 2022,
+      month: 8,
       list: ref({
         loading: false,
         finished: false,
         page: 1,
-        pageSize: 10,
-        items: [
-          {
-            id: 0,
-            title: "地铁票",
-            amount: 100,
-            reverse: true,
-            categoryId: 0,
-            remark: "hahahahaha",
-            payTime: "2022-08-16",
-          },
-        ],
+        pageSize: 7,
+        items: [],
       }),
-      categorys: ref(["111","222"]),
+      categorys: ref(["111", "222"]),
       sum: ref({
         in: 0,
         out: 0,
       }),
       form: {},
+      deleteIds: [],
       dateShow: ref(false),
       yearMonth: ref(false),
       itemDetail: ref(false),
@@ -111,12 +118,14 @@ export default {
   methods: {
     load: function () {
       this.list.loading = false;
-      this.list.finished = true;
-      return;
       setTimeout(() => {
-        this.year = Number(this.date.substring(0, 4));
-        this.month = Number(this.date.substring(5));
-        this.$axios.post("/money/list", this.list).then((res) => {
+        let request = {
+          page: this.list.page,
+          pageSize: this.list.pageSize,
+          year: this.year,
+          month: this.month,
+        };
+        this.$axios.post("/money/list", request).then((res) => {
           if (res.code != 200 || res.data == null) {
             alert(res.msg);
           } else {
@@ -131,27 +140,64 @@ export default {
         });
       }, 1000);
     },
+    showAdd: function () {
+      this.form = {};
+      this.itemDetail = true;
+    },
+    chooseMonth: function (texts) {
+      this.year = Number(texts[0]);
+      this.month = Number(texts[1]);
+      this.yearMonth = false;
+      this.refreshList();
+    },
+    refreshList: function() {
+      this.list.finished = false;
+      this.list.page = 1;
+      this.list.items = [];
+      this.load();
+    },
     showDetail: function (item) {
       this.itemDetail = true;
       this.form = item;
     },
     getSum: function () {
+      let request = {
+        year: this.year,
+        month: this.month,
+      };
+      this.$axios.get("/money/sum", request).then((res) => {
+        if (res.code != 200 || res.data == null) {
+          alert(res.msg);
+        } else {
+          this.sum = res.data;
+        }
+      });
+    },
+    add: function () {
+      this.$axios.post("/money/add", this.form).then((res) => {
+        if (res.code != 200 || res.data == null) {
+          alert(res.msg);
+        }
+      });
+      if (this.form.id == undefined) {
+        this.refreshList();
+      }
+      this.itemDetail = false
+    },
+    delete: function () {
       this.$axios
-        .get("/money/sum", { year: this.year, month: this.month })
+        .post("/money/delete", {
+          year: this.year,
+          month: this.month,
+          ids: this.deleteIds,
+        })
         .then((res) => {
           if (res.code != 200 || res.data == null) {
             alert(res.msg);
           } else {
-            this.sum = res.data;
+            this.refreshList();
           }
         });
-    },
-    chooseMonth: function (texts, indexes) {
-      console.log(this.year + "-" + this.month);
-      this.year = Number(texts[0]);
-      this.month = Number(texts[1]);
-      this.yearMonth = false;
-      console.log(this.year + "-" + this.month);
     },
   },
   computed: {
@@ -173,25 +219,24 @@ export default {
 .root {
   height: 780px;
 }
-.date {
-  display: inline-flex;
-}
-
-.date * {
-  font-size: 20px;
-  margin: auto;
-}
 
 .add {
   min-width: 15%;
   min-height: 25%;
 }
 
-.button {
+.form {
   display: flex;
-  width: 100%;
-  height: 13%;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+}
+.form * {
+  width: 90%;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
