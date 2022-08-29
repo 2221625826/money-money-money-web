@@ -1,20 +1,31 @@
 <template>
   <div>
-    <el-form>
-      <el-form-item label="账号">
-        <el-input v-model="form.username" />
-      </el-form-item>
-      <el-form-item label="密码">
-        <el-input v-model="form.password" show-password />
-      </el-form-item>
-      <el-button class="loginBtn" type="primary" native-type="submit" @click="login">登录</el-button>
-    </el-form>
+    <var-space direction="column" justify="center" style="height: 80%">
+      <var-space justify="center">
+        <h1>登录页面</h1>
+      </var-space>
+      <var-form>
+        <var-space direction="row" justify="center">
+          <p>账号:</p>
+          <var-input v-model="form.username" />
+        </var-space>
+        <var-space direction="row" justify="center ">
+          <p>密码:</p>
+          <var-input v-model="form.password" type="password"/>
+        </var-space>
+      </var-form>
+      <var-space justify="center">
+        <var-button class="loginBtn" type="primary" @click="login"
+          >登录</var-button
+        >
+      </var-space>
+    </var-space>
   </div>
 </template>
 
 <script>
 import { reactive } from "vue";
-let Base64 = require('js-base64').Base64;
+let Base64 = require("js-base64").Base64;
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Login",
@@ -31,6 +42,7 @@ export default {
   },
   methods: {
     login: function () {
+      this.$router.push("/money");//测试
       this.form.password = Base64.encode(this.form.password);
       this.$axios.get("/login/login", this.form).then((res) => {
         if (res.code != 200 || res.data == null) {
@@ -38,7 +50,7 @@ export default {
           alert(res.msg);
         } else {
           localStorage.setItem("token", res.data);
-          this.$router.push("/home");
+          this.$router.push("/money");
         }
       });
       this.form.password = "";
@@ -50,7 +62,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .loginBtn {
-  display: block;
-  margin: auto;
+  min-width: 30%;
+}
+
+p {
+  font-size: 20px;
 }
 </style>
