@@ -5,7 +5,7 @@
         <div style="width:40px">删除</div>
       </template>
     </var-app-bar>
-    <var-space justify="space-around" align="center" style="height: 13%">
+    <var-space justify="space-around" align="center" style="height: 100px">
       <var-button @click="yearMonth = true" color="pink">
         <var-space align="center" justify="space-around">
           <b style="font-size: 20px">
@@ -216,9 +216,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.root {
-  height: 780px;
-}
 
 .add {
   min-width: 15%;

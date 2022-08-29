@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Money/>
+      <Money />
   </div>
 </template>
 
@@ -15,9 +15,7 @@ export default {
   data() {
     return {};
   },
-  methods: {
-    
-  },
+  methods: {},
 };
 </script>
 <style scoped>
