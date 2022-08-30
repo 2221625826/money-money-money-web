@@ -1,12 +1,19 @@
 <template>
-  <router-view />
-  
+  <var-tabs v-model:active="active" fixed-bottom color="pink" @click="push">
+    <var-tab>账单</var-tab>
+    <var-tab>收支分析</var-tab>
+    <var-tab>个人中心</var-tab>
+  </var-tabs>
 </template>
-
-<script>
+  
+  <script>
 import { ref } from "vue";
 // @ is an alias to /src
 export default {
+  name: "Tab",
+  props: {
+    msg: String,
+  },
   data() {
     return {
       active: ref(0),
@@ -20,14 +27,7 @@ export default {
   },
 };
 </script>
-
+  
 <style>
-html,
-body,
-#app {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
 </style>
+  

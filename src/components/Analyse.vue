@@ -11,13 +11,18 @@
         <div id="line" class="chart"></div>
       </var-space>
     </var-list>
+    <Tab/>
   </div>
 </template>
   
 <script>
 import * as echarts from "echarts";
+import Tab from "@/components/Tab.vue";
 export default {
   name: "Analyse",
+  components: {
+    Tab,
+  },
   props: {
     msg: String,
   },
