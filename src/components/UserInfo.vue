@@ -1,6 +1,8 @@
 <template>
     <div>
-      
+        <var-form ref="form" :disabled="disabled" :readonly="readonly">
+            
+        </var-form>
     </div>
   </template>
   
@@ -12,7 +14,9 @@
     },
     data() {
       return { 
-        userInfo:{}
+        userInfo:{},
+        disabled: true,
+        readonly: true
       }
     }
   }
