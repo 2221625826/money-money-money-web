@@ -24,8 +24,8 @@
 </template>
 
 <script>
-import { reactive } from "vue";
-let Base64 = require("js-base64").Base64;
+import { ref } from "vue";
+let Base64 = require('js-base64').Base64;
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Login",
@@ -34,7 +34,7 @@ export default {
   },
   data() {
     return {
-      form: reactive({
+      form: ref({
         username: "",
         password: "",
       }),
