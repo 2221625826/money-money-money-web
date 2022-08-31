@@ -42,9 +42,8 @@ export default {
   },
   methods: {
     login: function () {
-      this.$router.push("/money");//测试
       this.form.password = Base64.encode(this.form.password);
-      this.$axios.get("/login/login", this.form).then((res) => {
+      this.$axios.get("/user/login", this.form).then((res) => {
         if (res.code != 200 || res.data == null) {
           localStorage.removeItem("token");
           alert(res.msg);

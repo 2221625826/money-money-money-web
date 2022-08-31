@@ -35,7 +35,7 @@
         <p>{{ isReverse(item.reverse) }} ¥：{{ item.amount }} 元</p>
       </var-cell>
     </var-list>
-    <Tab/>
+    <Tab :active="0"/>
 
     <var-popup position="bottom" v-model:show="dateShow">
       <var-date-picker v-model="form.payTime" shadow>
@@ -68,10 +68,10 @@
         </var-select>
         <var-select v-model="form.categoryId">
           <var-option
-            v-for="(category, index) in categorys"
-            :label="category"
-            :key="index"
-            :value="index"
+            v-for="category in categorys"
+            :label="category.name"
+            :key="category.id"
+            :value="category.id"
           />
         </var-select>
         <var-input v-model="form.remark" />
@@ -104,7 +104,7 @@ export default {
         pageSize: 7,
         items: [],
       }),
-      categorys: ref(["111", "222"]),
+      categorys: {},
       sum: ref({
         in: 0,
         out: 0,
@@ -165,6 +165,15 @@ export default {
       this.itemDetail = true;
       this.form = item;
     },
+    getCategorys: function() {
+      this.$axios.get("/money/getCategory", null).then((res) => {
+        if (res.code != 200 || res.data == null) {
+          alert(res.msg);
+        } else {
+          this.categorys = res.data;
+        }
+      });
+    },
     getSum: function () {
       let request = {
         year: this.year,
@@ -216,6 +225,9 @@ export default {
       };
     },
   },
+  mounted() {
+    this.getCategorys();
+  }
 };
 </script>
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <var-form ref="form" :disabled="disabled" :readonly="readonly"> </var-form>
-    <Tab/>
+    <Tab :active="2"/>
   </div>
 </template>
   

@@ -13,11 +13,11 @@ export default {
   name: "Tab",
   props: {
     msg: String,
+    active: Number,
   },
   data() {
     return {
-      active: ref(0),
-      path: ["/money", "/analyse", "/login"],
+      path: ["/money", "/analyse", "/userInfo"],
     };
   },
   methods: {

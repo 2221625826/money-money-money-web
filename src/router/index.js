@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import MoneyView from '../views/MoneyView.vue'
 import AnalyseView from '../views/AnalyseView.vue'
+import UserInfoView from '../views/UserInfoView.vue'
 
 const routes = [{
         path: '/about',
@@ -34,8 +35,13 @@ const routes = [{
         component: AnalyseView
     },
     {
+        path: '/userInfo',
+        name: 'userInfo',
+        component: UserInfoView
+    },
+    {
         path: '/',
-        redirect: '/money'
+        redirect: '/login'
     },
 
 ]

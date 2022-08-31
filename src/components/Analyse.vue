@@ -3,7 +3,7 @@
     <var-app-bar  title="收支分析" />
     <var-space justify="space-around" align="center" class="choose">
       <var-button>年度分析</var-button>
-      <var-button>本月分析</var-button>
+      <var-button @click="getMonth">本月分析</var-button>
     </var-space>
     <var-list>
       <var-space direction="column" justify="space-around" align="center">
@@ -11,12 +11,13 @@
         <div id="line" class="chart"></div>
       </var-space>
     </var-list>
-    <Tab/>
+    <Tab :active="1"/>
   </div>
 </template>
   
 <script>
 import * as echarts from "echarts";
+import { ref } from "vue";
 import Tab from "@/components/Tab.vue";
 export default {
   name: "Analyse",
@@ -30,16 +31,35 @@ export default {
     return {
       year: 2022,
       month: 8,
-      data: [
-        { value: 1048, name: "1" },
-        { value: 735, name: "2" },
-        { value: 580, name: "3" },
-        { value: 484, name: "4" },
-        { value: 300, name: "5" },
-      ],
+      pie: [],
+      lineX: [],
+      line: [],
     };
   },
   methods: {
+    getMonth: function() {
+      let request = {
+        year: this.year,
+        month: this.month
+      }
+      this.$axios.get("/analyse/pie", request).then((res) => {
+        if (res.code != 200 || res.data == null) {
+          alert(res.msg);
+        } else {
+          this.pie = res.data;
+          this.initPieChart();
+        }
+      });
+      this.$axios.get("/analyse/line", request).then((res) => {
+        if (res.code != 200 || res.data == null) {
+          alert(res.msg);
+        } else {
+          this.lineX = res.data.name;
+          this.line = res.data.value;
+          this.initLineChart();
+        }
+      });
+    },
     initPieChart: function () {
       let chart = echarts.init(document.getElementById("pie"));
       // 把配置和数据放这里
@@ -51,7 +71,7 @@ export default {
           {
             type: "pie", //图类型
             radius: "70%", //饼图半径
-            data: this.data,
+            data: this.pie,
             emphasis: {
               //高亮
               itemStyle: {
@@ -73,14 +93,14 @@ export default {
       chart.setOption({
         xAxis: {
           type: "category",
-          data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          data: this.lineX,
         },
         yAxis: {
           type: "value",
         },
         series: [
           {
-            data: [150, 230, 224, 218, 135, 147, 260],
+            data: this.line,
             type: "line",
           },
         ],
@@ -91,8 +111,7 @@ export default {
     },
   },
   mounted() {
-    this.initPieChart();
-    this.initLineChart();
+    this.getMonth();
   },
   unmounted() {
     echarts.dispose;
