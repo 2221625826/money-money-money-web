@@ -1,8 +1,12 @@
 <template>
   <div class="root">
-    <var-app-bar> 
+    <var-app-bar>
       <template #right>
-        <div style="width:40px">删除</div>
+        <var-button
+        text
+        color="transparent"
+        @click="deleteBatch"
+      >删除</var-button>
       </template>
     </var-app-bar>
     <var-space justify="space-around" align="center" style="height: 100px">
@@ -28,14 +32,16 @@
         :key="item"
         v-for="item in list.items"
         :border="true"
-        @click="showDetail(item)"
       >
-        <h2>{{ item.title }}</h2>
+        <h2 @click="showDetail(item)">{{ item.title }}</h2>
         <p>{{ item.payTime }}</p>
         <p>{{ isReverse(item.reverse) }} ¥：{{ item.amount }} 元</p>
+        <var-checkbox-group ref="group" v-model="deleteIds" v-if="showDelete">
+          <var-checkbox :checked-value="item.id">删除</var-checkbox>
+        </var-checkbox-group>
       </var-cell>
     </var-list>
-    <Tab :active="0"/>
+    <Tab :active="0" />
 
     <var-popup position="bottom" v-model:show="dateShow">
       <var-date-picker v-model="form.payTime" shadow>
@@ -110,7 +116,8 @@ export default {
         out: 0,
       }),
       form: {},
-      deleteIds: [],
+      deleteIds: ref([]),
+      showDelete: ref(false),
       dateShow: ref(false),
       yearMonth: ref(false),
       itemDetail: ref(false),
@@ -155,7 +162,7 @@ export default {
       this.yearMonth = false;
       this.refreshList();
     },
-    refreshList: function() {
+    refreshList: function () {
       this.list.finished = false;
       this.list.page = 1;
       this.list.items = [];
@@ -165,7 +172,7 @@ export default {
       this.itemDetail = true;
       this.form = item;
     },
-    getCategorys: function() {
+    getCategorys: function () {
       this.$axios.get("/money/getCategory", null).then((res) => {
         if (res.code != 200 || res.data == null) {
           alert(res.msg);
@@ -196,9 +203,9 @@ export default {
       if (this.form.id == undefined) {
         this.refreshList();
       }
-      this.itemDetail = false
+      this.itemDetail = false;
     },
-    delete: function () {
+    deleteBatch: function () {
       this.$axios
         .post("/money/delete", {
           year: this.year,
@@ -227,13 +234,12 @@ export default {
   },
   mounted() {
     this.getCategorys();
-  }
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 .add {
   min-width: 15%;
   min-height: 25%;
