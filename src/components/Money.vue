@@ -41,7 +41,6 @@
         </var-checkbox-group>
       </var-cell>
     </var-list>
-    <Tab :active="0" />
 
     <var-popup position="bottom" v-model:show="dateShow">
       <var-date-picker v-model="form.payTime" shadow>
@@ -89,13 +88,10 @@
 
 <script>
 import { ref } from "vue";
-import Tab from "@/components/Tab.vue";
+
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Money",
-  components: {
-    Tab,
-  },
   props: {
     msg: String,
   },

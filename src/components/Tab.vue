@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <var-tabs v-model:active="active" fixed-bottom color="pink" @click="push">
     <var-tab>账单</var-tab>
@@ -7,9 +8,9 @@
 </template>
   
   <script>
-import { ref } from "vue";
 // @ is an alias to /src
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
   name: "Tab",
   props: {
     msg: String,

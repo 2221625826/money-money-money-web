@@ -11,19 +11,14 @@
         <div id="line" class="chart"></div>
       </var-space>
     </var-list>
-    <Tab :active="1"/>
   </div>
 </template>
   
 <script>
 import * as echarts from "echarts";
-import { ref } from "vue";
-import Tab from "@/components/Tab.vue";
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
   name: "Analyse",
-  components: {
-    Tab,
-  },
   props: {
     msg: String,
   },
