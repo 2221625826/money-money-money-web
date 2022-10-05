@@ -53,7 +53,7 @@ const router = createRouter({
 
 //当当前token为空时，不允许访问其他页面，直接跳转到登录页面
 router.beforeEach((to, from, next) => {
-    next() //调试
+    next();
     if (to.path === '/login') {
         next();
     } else {

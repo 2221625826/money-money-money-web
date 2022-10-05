@@ -117,7 +117,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .backgroud {
-  background-color: pink;
   min-height: 100%;
 }
 .chart {

@@ -1,16 +1,14 @@
 <template>
   <div class="root">
-    <var-app-bar>
+    <var-app-bar class="bar" title="MoneyMoneyMoney" title-position="center">
       <template #right>
-        <var-button
-        text
-        color="transparent"
-        @click="deleteBatch"
-      >删除</var-button>
+        <var-button text color="transparent" @click="deleteBatch"
+          >删除</var-button
+        >
       </template>
     </var-app-bar>
     <var-space justify="space-around" align="center" style="height: 100px">
-      <var-button @click="yearMonth = true" color="pink">
+      <var-button type="primary" @click="yearMonth = true">
         <var-space align="center" justify="space-around">
           <b style="font-size: 20px">
             {{ this.year }} 年 {{ this.month }} 月
@@ -18,7 +16,7 @@
           <var-icon name="menu-down" :size="26" />
         </var-space>
       </var-button>
-      <var-button class="add" color="green" @click="showAdd">
+      <var-button type="primary" class="add" @click="showAdd">
         <var-icon name="plus" :size="26" />
       </var-button>
     </var-space>
@@ -28,11 +26,7 @@
       v-model:loading="this.list.loading"
       @load="load"
     >
-      <var-cell
-        :key="item"
-        v-for="item in list.items"
-        :border="true"
-      >
+      <var-cell :key="item" v-for="item in list.items" :border="true">
         <h2 @click="showDetail(item)">{{ item.title }}</h2>
         <p>{{ item.payTime }}</p>
         <p>{{ isReverse(item.reverse) }} ¥：{{ item.amount }} 元</p>
@@ -52,9 +46,11 @@
         </template></var-date-picker
       >
     </var-popup>
+
     <var-popup position="bottom" v-model:show="yearMonth">
       <var-picker :columns="columns" @confirm="chooseMonth" />
     </var-popup>
+
     <var-popup position="bottom" v-model:show="itemDetail">
       <var-app-bar color="blue" class="bar">
         <template #left>
@@ -64,23 +60,53 @@
           <div @click="add">确认</div>
         </template>
       </var-app-bar>
-      <var-form ref="form" class="form">
-        <var-input v-model="form.title" />
-        <var-input v-model="form.amount" />
-        <var-select v-model="form.reverse">
-          <var-option label="支出" :value="true" />
-          <var-option label="收入" :value="false" />
-        </var-select>
-        <var-select v-model="form.categoryId">
-          <var-option
-            v-for="category in categorys"
-            :label="category.name"
-            :key="category.id"
-            :value="category.id"
-          />
-        </var-select>
-        <var-input v-model="form.remark" />
-        <var-input readonly v-model="form.payTime" @click="dateShow = true" />
+      <var-form ref="form" style="margin-bottom: 10px">
+        <var-row align="flex-end" justify="center">
+          <var-col :span="4" class="label">标题：</var-col>
+          <var-col :span="18">
+            <var-input v-model="form.title" />
+          </var-col>
+        </var-row>
+        <var-row align="flex-end" justify="center">
+          <var-col :span="4" class="label">金额：</var-col>
+          <var-col :span="18">
+            <var-input v-model="form.amount" />
+          </var-col>
+        </var-row>
+        <var-row align="flex-end" justify="center">
+          <var-col :span="8" class="label">支出/收入：</var-col>
+          <var-col :span="14">
+            <var-select v-model="form.reverse">
+              <var-option label="支出" :value="true" />
+              <var-option label="收入" :value="false" />
+            </var-select>
+          </var-col>
+        </var-row>
+        <var-row align="flex-end" justify="center">
+          <var-col :span="4" class="label">类别：</var-col>
+          <var-col :span="18">
+            <var-select v-model="form.categoryId">
+              <var-option
+                v-for="category in categorys"
+                :label="category.name"
+                :key="category.id"
+                :value="category.id"
+              />
+            </var-select>
+          </var-col>
+        </var-row>
+        <var-row align="flex-end" justify="center">
+          <var-col :span="4" class="label">备注：</var-col>
+          <var-col :span="18">
+            <var-input v-model="form.remark" />
+          </var-col>
+        </var-row>
+        <var-row align="flex-end" justify="center">
+          <var-col :span="6" class="label">支付时间：</var-col>
+          <var-col :span="16">
+            <var-input readonly v-model="form.payTime" @click="dateShow = true" />
+          </var-col>
+        </var-row>
       </var-form>
     </var-popup>
   </div>
@@ -104,7 +130,7 @@ export default {
         finished: false,
         page: 1,
         pageSize: 7,
-        items: [],
+        items: [{"id":1,"title":"晚饭","amount":33.59,"reverse":true,"categoryId":1,"remark":"测试","payTime":"2022-09-03"},{"id":2,"title":"喵喵喵","amount":123.00,"reverse":true,"categoryId":1,"remark":"招招","payTime":"2022-09-03"}],
       }),
       categorys: {},
       sum: ref({
@@ -202,8 +228,9 @@ export default {
       this.itemDetail = false;
     },
     deleteBatch: function () {
-      this.$axios
-        .post("/money/delete", {
+      if (this.showDelete && this.deleteIds.length > 0) {
+        this.$axios
+        .post("/money/batchDelete", {
           year: this.year,
           month: this.month,
           ids: this.deleteIds,
@@ -215,6 +242,8 @@ export default {
             this.refreshList();
           }
         });
+      }
+      this.showDelete = !this.showDelete;
     },
   },
   computed: {
@@ -241,18 +270,14 @@ export default {
   min-height: 25%;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.form * {
-  width: 90%;
-}
-
 .bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
+.label {
+  font-size: 18px;
+}
 </style>
+
